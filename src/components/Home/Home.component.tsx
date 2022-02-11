@@ -2,6 +2,7 @@ import useMouse from '@react-hook/mouse-position';
 import React, { useEffect, useRef, useState } from 'react';
 import { drawMandel } from '../../lib/mandel';
 import { IPoint } from '../../lib/mandel.d';
+import useMultiKeyPress from '../../lib/useMultiKeyPress';
 import { getCenter, origin } from '../../lib/util';
 import { HomeProps } from "./Home.d";
 import './Home.scss';
@@ -25,6 +26,7 @@ export const HomeComponent = (props:HomeProps) => {
     const [zoom, setZoom] = useState<number>(initialZoom);
     const [maxIterations, setMaxIterations] = useState<number>(2000);
     const mouse = useMouse(ref);
+    const keysPressed = useMultiKeyPress();
 
     const curPoint = getCenter({...mouse, x: mouse.x || 0, y: mouse.y || 0}, zoom, center, width, height);
 
@@ -32,8 +34,8 @@ export const HomeComponent = (props:HomeProps) => {
         drawMandel(ref.current, center, zoom, maxIterations, width, height);
     }, [center, zoom, maxIterations]);
 
-    const zoomIn = () => {
-        const f = 1.2;
+    const zoomImage = () => {
+        const f = keysPressed.includes("Shift") ? 1/1.2 : 1.2;
         setCenter({
             x: curPoint.x + (center.x - curPoint.x) / f,
             y: curPoint.y + (center.y - curPoint.y) / f,
@@ -45,9 +47,9 @@ export const HomeComponent = (props:HomeProps) => {
         <div className="info">
             X: {curPoint.x}<br/>
             Y: {curPoint.y}<br/>
-            Z: {zoom / initialZoom}
+            Z: {zoom / initialZoom}<br/>
         </div>
-        <div className="render-window" onClick={zoomIn}>
+        <div className="render-window" onClick={zoomImage}>
             <div ref={ref} />
         </div>
     </>;
